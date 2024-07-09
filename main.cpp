@@ -3,44 +3,45 @@
 
 using namespace sf;
 
-const int H = 21;// Высота карты
-const int W = 19;// Ширина карты
-const int ts = 25;// Размер тайла
+const int H = 21;  // Высота карты
+const int W = 19;  // Ширина карты
+const int ts = 25; // Размер тайла
 
-int q = 0;// Количество собранных очков
-bool life = true;// Состояние пакмена (жив или мёртв)
+int q = 0;           // Количество собранных очков
+bool life = true;    // Состояние пакмена (жив или мёртв)
 bool isPaused = false; // Состояние паузы
+
 // Карта игры
 String TileMap[H] = {
-"AAAAAAAAAAAAAAAAAAA",
-"A1       A       2A",
-"A AA AAA A AAA AA A",
-"A        A        A",
-"A AA A AAAAA A AA A",
-"A    A   A   A    A",
-"AAAA AAA A AAA AAAA",
-"BBBA A       A ABBB",
-"AAAA A AAAAA A AAAA",
-"BBBB   ABBBA   BBBB",
-"AAAA A AAAAA A AAAA",
-"BBBA A       A ABBB",
-"AAAA A AAAAA A AAAA",
-"A        A        A",
-"A AA AAA A AAA AA A",
-"A  A     C     A  A",
-"AA A A AAAAA A A AA",
-"A    A   A   A    A",
-"A AAAAAA A AAAAAA A",
-"A3               4A",
-"AAAAAAAAAAAAAAAAAAA",
+    "AAAAAAAAAAAAAAAAAAA",
+    "A1       A       2A",
+    "A AA AAA A AAA AA A",
+    "A        A        A",
+    "A AA A AAAAA A AA A",
+    "A    A   A   A    A",
+    "AAAA AAA A AAA AAAA",
+    "BBBA A       A ABBB",
+    "AAAA A AAAAA A AAAA",
+    "BBBB   ABBBA   BBBB",
+    "AAAA A AAAAA A AAAA",
+    "BBBA A       A ABBB",
+    "AAAA A AAAAA A AAAA",
+    "A        A        A",
+    "A AA AAA A AAA AA A",
+    "A  A     C     A  A",
+    "AA A A AAAAA A A AA",
+    "A    A   A   A    A",
+    "A AAAAAA A AAAAAA A",
+    "A3               4A",
+    "AAAAAAAAAAAAAAAAAAA",
 };
 
 class Player {
 public:
-    float frame = 0;// Кадр анимации
-    int x = 9, y = 15;// Координаты игрока
-    int newx = 0, newy = 0;// Новые координаты игрока
-    int rotate = 1, ti = 0;// Направление и счётчик времени
+    float frame = 0;  // Кадр анимации
+    int x = 9, y = 15;  // Координаты игрока
+    int newx = 0, newy = 0;  // Новые координаты игрока
+    int rotate = 1, ti = 0;  // Направление и счётчик времени
 
     void update() {
         frame += 0.01;
@@ -81,7 +82,6 @@ public:
                 life = false;
 
             TileMap[y][x] = 'B';
-
             TileMap[newy][newx] = 'C';
 
             x = newx;
@@ -105,9 +105,12 @@ public:
 
 class Enemy {
 public:
-    int x[4] = { 1, 17 , 1, 17 }, y[4] = { 1, 1, 19, 19 };// Координаты врагов
-    int newx[4] = { 0 , 0 , 0, 0 }, newy[4] = { 0, 0, 0, 0 };// Новые координаты врагов
-    int rotate[4] = { 1, 1, 1, 1 }, ti = 0;// Направление врагов и счётчик времени
+    int x[4] = { 1, 17 , 1, 17 };  // Координаты врагов
+    int y[4] = { 1, 1, 19, 19 };
+    int newx[4] = { 0 , 0 , 0, 0 };  // Новые координаты врагов
+    int newy[4] = { 0, 0, 0, 0 };
+    int rotate[4] = { 1, 1, 1, 1 };  // Направление врагов и счётчик времени
+    int ti = 0;
 
     void update() {
         ti++;
@@ -190,10 +193,65 @@ public:
     }
 };
 
+void restartGame(Player& p, Enemy& en) {
+    q = 0;
+    life = true;
+    isPaused = false;
+
+    // Вернуть начальное состояние карты
+    String initialTileMap[H] = {
+        "AAAAAAAAAAAAAAAAAAA",
+        "A1       A       2A",
+        "A AA AAA A AAA AA A",
+        "A        A        A",
+        "A AA A AAAAA A AA A",
+        "A    A   A   A    A",
+        "AAAA AAA A AAA AAAA",
+        "BBBA A       A ABBB",
+        "AAAA A AAAAA A AAAA",
+        "BBBB   ABBBA   BBBB",
+        "AAAA A AAAAA A AAAA",
+        "BBBA A       A ABBB",
+        "AAAA A AAAAA A AAAA",
+        "A        A        A",
+        "A AA AAA A AAA AA A",
+        "A  A     C     A  A",
+        "AA A A AAAAA A A AA",
+        "A    A   A   A    A",
+        "A AAAAAA A AAAAAA A",
+        "A3               4A",
+        "AAAAAAAAAAAAAAAAAAA",
+    };
+
+    for (int i = 0; i < H; ++i) {
+        TileMap[i] = initialTileMap[i];
+    }
+
+    // Вернуть начальные координаты игрока
+    p.x = 9;
+    p.y = 15;
+    p.newx = 0;
+    p.newy = 0;
+    p.rotate = 1;
+    p.frame = 0;
+
+    // Вернуть начальные координаты врагов
+    en.x[0] = 1; en.y[0] = 1;
+    en.x[1] = 17; en.y[1] = 1;
+    en.x[2] = 1; en.y[2] = 19;
+    en.x[3] = 17; en.y[3] = 19;
+    for (int i = 0; i < 4; ++i) {
+        en.newx[i] = 0;
+        en.newy[i] = 0;
+        en.rotate[i] = 1;
+    }
+}
+
 int main() {
     srand(time(0));
     RenderWindow window(VideoMode(W * ts, H * ts), "Maze!");
-// Загрузка текстур
+
+    // Загрузка текстур
     Texture t;
     t.loadFromFile("C:/Pacmanlab/Paint/title.png");
     Sprite plat(t);
@@ -244,6 +302,7 @@ int main() {
             p.update();
             en.update();
         }
+
         window.clear(Color::Black);
 
         for (int i = 0; i < H; i++)
@@ -275,6 +334,11 @@ int main() {
             window.draw(youlose);
 
         window.display();
+
+        // Проверка условий для перезапуска игры
+        if (q == 171 || !life) {
+            restartGame(p, en);
+        }
     }
 
     return 0;
