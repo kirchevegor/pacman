@@ -267,6 +267,7 @@ int main() {
     youlose.setPosition(100, 210);
 
     Player p;
+    Player p2; // Второй игрок
     Enemy en;
 
     while (window.isOpen())
@@ -277,29 +278,40 @@ int main() {
             if (event.type == Event::Closed)
                 window.close();
 
-            if (event.type == Event::KeyPressed) {
-                if (event.key.code == Keyboard::P) {
-                    isPaused = !isPaused;
-                }
+            // Управление первым игроком (стрелки)
+            if (event.type == Event::KeyPressed && !isPaused && q < 171 && life) {
+                p.newx = p.x;
+                p.newy = p.y;
 
-                if (!isPaused && q < 171 && life) {
-                    p.newx = p.x;
-                    p.newy = p.y;
+                if (event.key.code == Keyboard::Right)
+                    p.rotate = 1;
+                if (event.key.code == Keyboard::Left)
+                    p.rotate = 2;
+                if (event.key.code == Keyboard::Up)
+                    p.rotate = 3;
+                if (event.key.code == Keyboard::Down)
+                    p.rotate = 4;
+            }
 
-                    if (event.key.code == Keyboard::Right)
-                        p.rotate = 1;
-                    if (event.key.code == Keyboard::Left)
-                        p.rotate = 2;
-                    if (event.key.code == Keyboard::Up)
-                        p.rotate = 3;
-                    if (event.key.code == Keyboard::Down)
-                        p.rotate = 4;
-                }
+            // Управление вторым игроком (WASD)
+            if (event.type == Event::KeyPressed && !isPaused && q < 171 && life) {
+                p2.newx = p2.x;
+                p2.newy = p2.y;
+
+                if (event.key.code == Keyboard::D)
+                    p2.rotate = 1;
+                if (event.key.code == Keyboard::A)
+                    p2.rotate = 2;
+                if (event.key.code == Keyboard::W)
+                    p2.rotate = 3;
+                if (event.key.code == Keyboard::S)
+                    p2.rotate = 4;
             }
         }
 
         if (!isPaused && q < 171 && life) {
             p.update();
+            p2.update(); // Обновление второго игрока
             en.update();
         }
 
@@ -311,6 +323,8 @@ int main() {
                     plat.setTextureRect(IntRect(0, 0, ts, ts));
                 if (TileMap[i][j] == 'C')
                     plat.setTextureRect(IntRect(ts * int(p.frame), ts * p.rotate, ts, ts));
+                if (TileMap[i][j] == 'D') // Для второго игрока
+                    plat.setTextureRect(IntRect(ts * int(p2.frame), ts * p2.rotate, ts, ts));
                 if (TileMap[i][j] == ' ')
                     plat.setTextureRect(IntRect(ts, 0, ts, ts));
                 if (TileMap[i][j] == '1')
@@ -338,6 +352,7 @@ int main() {
         // Проверка условий для перезапуска игры
         if (q == 171 || !life) {
             restartGame(p, en);
+            restartGame(p2, en); // Сбросить состояние второго игрока
         }
     }
 
