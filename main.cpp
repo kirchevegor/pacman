@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <time.h>
+#include <iostream>
 
 using namespace sf;
 
@@ -42,6 +43,7 @@ public:
     int x = 9, y = 15;  // Координаты игрока
     int newx = 0, newy = 0;  // Новые координаты игрока
     int rotate = 1, ti = 0;  // Направление и счётчик времени
+    int points = 0; // Счетчик собранных кружочков для игрока
 
     void update() {
         frame += 0.01;
@@ -74,8 +76,10 @@ public:
         }
 
         if (TileMap[newy][newx] == ' ' || TileMap[newy][newx] == 'B') {
-            if (TileMap[newy][newx] == ' ')
+            if (TileMap[newy][newx] == ' ') {
                 q++;
+                points++; // Увеличение счетчика для первого игрока
+            }
 
             if (TileMap[newy][newx] == '1'
                 || TileMap[newy][newx] == '2' || TileMap[newy][newx] == '3' || TileMap[newy][newx] == '4')
@@ -193,7 +197,7 @@ public:
     }
 };
 
-void restartGame(Player& p, Enemy& en) {
+void restartGame(Player& p, Player& p2, Enemy& en) {
     q = 0;
     life = true;
     isPaused = false;
@@ -227,13 +231,22 @@ void restartGame(Player& p, Enemy& en) {
         TileMap[i] = initialTileMap[i];
     }
 
-    // Вернуть начальные координаты игрока
+    // Вернуть начальные координаты игроков
     p.x = 9;
     p.y = 15;
     p.newx = 0;
     p.newy = 0;
     p.rotate = 1;
     p.frame = 0;
+    p.points = 0;
+
+    p2.x = 9;  // Начальные координаты второго игрока
+    p2.y = 17;
+    p2.newx = 0;
+    p2.newy = 0;
+    p2.rotate = 1;
+    p2.frame = 0;
+    p2.points = 0;
 
     // Вернуть начальные координаты врагов
     en.x[0] = 1; en.y[0] = 1;
@@ -269,6 +282,12 @@ int main() {
     Player p;
     Player p2; // Второй игрок
     Enemy en;
+
+    Font font;  // Загрузка шрифта для текста счетчика
+    if (!font.loadFromFile("C:/Pacmanlab/Paint/arial.ttf")) {
+        std::cerr << "Failed to load font" << std::endl;
+        return 1;
+    }
 
     while (window.isOpen())
     {
@@ -342,6 +361,25 @@ int main() {
                 window.draw(plat);
             }
 
+        // Отображение счетчика для первого игрока
+        sf::Text player1Score;
+        player1Score.setFont(font);
+        player1Score.setCharacterSize(20);
+        player1Score.setFillColor(sf::Color::White);
+        player1Score.setPosition(10, 10);
+        player1Score.setString("Player 1 Score: " + std::to_string(p.points));
+
+        // Отображение счетчика для второго игрока
+        sf::Text player2Score;
+        player2Score.setFont(font);
+        player2Score.setCharacterSize(20);
+        player2Score.setFillColor(sf::Color::White);
+        player2Score.setPosition(10, 40);  // Позиция для второго игрока
+        player2Score.setString("Player 2 Score: " + std::to_string(p2.points));
+
+        window.draw(player1Score);
+        window.draw(player2Score);
+
         if (q == 171)
             window.draw(youwin);
         if (!life)
@@ -351,8 +389,7 @@ int main() {
 
         // Проверка условий для перезапуска игры
         if (q == 171 || !life) {
-            restartGame(p, en);
-            restartGame(p2, en); // Сбросить состояние второго игрока
+            restartGame(p, p2, en);
         }
     }
 
